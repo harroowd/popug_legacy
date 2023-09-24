@@ -38,7 +38,6 @@ async def get_token(
         user_data = await ModelRepos(db, User).get_by_field(
             data=payload.email, field=get_column_name(str(User.email))
         )
-        print(user_data, "KEKEK", user_data.password)
         user = await Security(payload.password).verify_account(user_data, db)
         check_raise_unauthorized(user, details=WrongCreds().detail)
 
