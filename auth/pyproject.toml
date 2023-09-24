@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "auth"
+version = "0.1.0"
+description = ""
+authors = ["Yes"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "0.95.0"
+pyodbc = "4.0.39"
+sqlalchemy = {version = "2.0.21", extras = ["asyncio"]}
+alembic = {version = "1.10.3", extras = ["asyncio"]}
+uvicorn = "0.21.1"
+PyYAML = "6.0"
+PyJWT = "2.8.0"
+psycopg2 = "2.9.3"
+asyncpg = "0.28.0"
+bcrypt = "4.0.1"
+async_generator = "1.10"
+redis = "4.5.5"
+python-dotenv = {version = "1.0.0", extras = ["dotenv"]}
+pydantic = {version = "1.10.7", extras = ["email"]}
+black = "23.3.0"
+isort = "5.12.0"
+flake8 = "5.0.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
