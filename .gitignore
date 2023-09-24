@@ -1,0 +1,13 @@
+.idea/
+build/
+*.egg-info/
+dist/
+.mypy_cache/
+.tox/
+__pycache__/
+popug_legacy_env/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
