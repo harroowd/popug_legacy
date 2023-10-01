@@ -1,7 +1,8 @@
+from pydantic import BaseSettings
+
 from config.auth import AuthSettings
 from config.database import DatabaseSettings
 from config.redis import RedisSettings
-from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):

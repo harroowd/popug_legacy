@@ -1,11 +1,11 @@
-from datetime import datetime
+from bcrypt import (
+    checkpw,
+    gensalt,
+    hashpw,
+)
 
-from bcrypt import checkpw, gensalt, hashpw
-from database.models import User
-from sqlalchemy.ext.asyncio import AsyncSession
 
-
-class Security:
+class Password:
     def __init__(self, password: str = None):
         self._password = password
 
@@ -20,9 +20,3 @@ class Security:
         return checkpw(
             self._password.encode("utf-8"), hashed_password.encode("utf-8")
         )
-
-    async def verify_account(self, user: User, db: AsyncSession):
-        if user and self.verify_password(user.password):
-            user.current_sign_in_at = datetime.utcnow()
-            await db.commit()
-            return user

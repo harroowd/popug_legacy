@@ -1,5 +1,6 @@
-from api.v1 import api_router
 from fastapi import FastAPI
+
+from api.v1 import api_router
 
 app = FastAPI(docs_url="/v1/swagger")
 

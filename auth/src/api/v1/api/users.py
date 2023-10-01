@@ -1,27 +1,33 @@
-from typing import Any, Union
+from typing import (
+    Any,
+    Union,
+)
 
-from core.security import Security
+from fastapi import (
+    APIRouter,
+    Depends,
+    status,
+)
+from popug_legacy_sdk.database.user import ModelRepos
+from popug_legacy_sdk.schemas import Pagination
+
+from core.password import Password
 from database.database import get_db
 from database.models import User
-from fastapi import APIRouter, Depends, status
 from schemas.errors import (
     EmailExist,
     UsernameExist,
     UserNotFound,
-    check_raise_data_conflict,
-    check_raise_data_not_found,
+    check_raise,
 )
-from schemas.users import User as UserSchema
 from schemas.users import (
+    User as UserSchema,
     UserPayload,
     UsersInfo,
     UsersPayload,
     UserUpdateSchemas,
 )
 from utils.utils import get_column_name
-
-from popug_legacy_sdk.database.user import ModelRepos
-from popug_legacy_sdk.schemas import Pagination
 
 router_for_admins = APIRouter(prefix="/users", tags=["users"])
 router_without_token = APIRouter(prefix="/users", tags=["users"])
@@ -46,16 +52,21 @@ router_update = APIRouter(prefix="/users", tags=["users"])
 )
 async def create_user(payload: UserPayload) -> UserSchema:
     async with get_db() as db:
-        for user_data, field, error_detail in [
-            (payload.email, str(User.email), EmailExist().detail),
-            (payload.username, str(User.username), UsernameExist().detail),
-        ]:
-            user_query = await ModelRepos(db, User).set_filter(
-                data=user_data, field=get_column_name(field)
-            )
-            user_data = await user_query.get_one()
-            check_raise_data_conflict(user_data, error_detail)
-        payload.password = Security(payload.password).get_password_hash()
+        user_query = await ModelRepos(db, User).set_filter(
+            data=payload.email, field=get_column_name(str(User.email))
+        )
+        user_data = await user_query.get_one()
+        check_raise(
+            user_data, status.HTTP_409_CONFLICT, EmailExist().detail, False
+        )
+        user_query = await ModelRepos(db, User).set_filter(
+            data=payload.username, field=get_column_name(str(User.username))
+        )
+        user_data = await user_query.get_one()
+        check_raise(
+            user_data, status.HTTP_409_CONFLICT, UsernameExist().detail, False
+        )
+        payload.password = Password(payload.password).get_password_hash()
         new_user = await ModelRepos(db, User).add(payload.dict())
 
     return UserSchema(**new_user.__dict__)
@@ -79,7 +90,7 @@ async def get_user(user_id: int) -> UserSchema:
             data=user_id, field=get_column_name(str(User.id))
         )
         user_data = await user_query.get_one()
-        check_raise_data_not_found(user_data, UserNotFound().detail)
+    check_raise(user_data, status.HTTP_404_NOT_FOUND, UserNotFound().detail)
     return UserSchema(**user_data.__dict__)
 
 
@@ -93,8 +104,8 @@ async def get_users(payload: UsersPayload = Depends()) -> UsersInfo:
     async with get_db() as db:
         pagination = Pagination(**payload.dict())
         users, count = await ModelRepos(db, User).get_all_data(pagination)
-        pagination.count = count
-        data = [UserSchema(**user_data.__dict__) for user_data in users]
+    pagination.count = count
+    data = [UserSchema(**user_data.__dict__) for user_data in users]
     return UsersInfo(data=data, pagination=pagination)
 
 
@@ -120,13 +131,17 @@ async def update_user(user_id: int, data: UserUpdateSchemas) -> dict[str, Any]:
             data=data.username, field=get_column_name(str(User.username))
         )
         user_data = await user_query.get_one()
-        check_raise_data_conflict(user_data, UsernameExist().detail)
+        check_raise(
+            user_data, status.HTTP_409_CONFLICT, UsernameExist().detail
+        )
 
         user_query = await ModelRepos(db, User).set_filter(
             data=user_id, field=get_column_name(str(User.id))
         )
         user_data = await user_query.get_one()
-        check_raise_data_not_found(user_data, UserNotFound().detail)
+        check_raise(
+            user_data, status.HTTP_404_NOT_FOUND, UserNotFound().detail
+        )
 
         user_data.username = data.username
         await db.commit()
@@ -150,5 +165,7 @@ async def delete_user(user_id: int):
             data=user_id, field=get_column_name(str(User.id))
         )
         user_data = await user_query.get_one()
-        check_raise_data_not_found(user_data, UserNotFound().detail)
+        check_raise(
+            user_data, status.HTTP_404_NOT_FOUND, UserNotFound().detail
+        )
         await user_query.delete(user_data)

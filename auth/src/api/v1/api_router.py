@@ -1,11 +1,17 @@
-from api.v1.api import auth, users
-from fastapi import APIRouter, Security
-
+from fastapi import (
+    APIRouter,
+    Security,
+)
 from popug_legacy_sdk.auth.permissions import (
     check_permissions,
     check_update_user_permissions,
 )
 from popug_legacy_sdk.schemas import UserRoles
+
+from api.v1.api import (
+    auth,
+    users,
+)
 
 api_router = APIRouter()
 

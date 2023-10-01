@@ -1,11 +1,12 @@
 from async_generator import asynccontextmanager
-from config.settings import settings
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
 from sqlalchemy.ext.declarative import declarative_base
+
+from config.settings import settings
 
 base_url = settings.database.database_url
 

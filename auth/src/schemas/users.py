@@ -1,9 +1,15 @@
 from datetime import datetime
 
 from fastapi import Query
-from pydantic import BaseModel, EmailStr, Field
-
-from popug_legacy_sdk.schemas import Pagination, UserRoles
+from popug_legacy_sdk.schemas import (
+    Pagination,
+    UserRoles,
+)
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+)
 
 
 class User(BaseModel):

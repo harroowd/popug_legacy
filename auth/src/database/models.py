@@ -1,9 +1,17 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
 from popug_legacy_sdk.schemas import UserRoles
+from sqlalchemy import (
+    DateTime,
+    Integer,
+    String,
+    text,
+)
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    mapped_column,
+)
 
 
 class Base(DeclarativeBase):

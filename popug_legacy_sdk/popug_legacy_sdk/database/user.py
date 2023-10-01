@@ -19,7 +19,7 @@ class ModelRepos(BaseRepo):
         query = self._query.where(getattr(self._model, field) == data)
         return self(query)
 
-    async def add(self, data: Any):
+    async def add(self, data: dict[str, Any]):
         new_data = self._model(**data)
         self._session.add(new_data)
         return await self(new_data).apply(flush=True)

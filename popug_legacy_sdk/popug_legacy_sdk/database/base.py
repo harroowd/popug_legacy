@@ -18,34 +18,34 @@ class BaseRepo:
         if self._model is not None:
             return select(self._model)
 
-    def __call__(self, query):
+    def __call__(self, query: select):
         self._query = query
         return self
 
     async def apply(self, flush: bool = False):
-        result = await self.get()
+        result = self.get()
         if flush:
             await self._session.flush()
         await self._session.commit()
 
         return result
 
-    async def get(self):
+    def get(self):
         if self._query is None:
             raise NoContextError
         return self._query
 
     async def use_pagination(self, page_size: int = 25, page: int = 1):
-        query = await self.get()
+        query = self.get()
         return query.limit(page_size).offset((page - 1) * page_size)
 
     async def get_one(self):
-        query = await self.get()
+        query = self.get()
         result = await self._session.execute(query)
         return result.scalar()
 
     async def get_all(self):
-        query = await self.get()
+        query = self.get()
         result = await self._session.execute(query)
         return result.scalars(), await self.count()
 
@@ -55,7 +55,7 @@ class BaseRepo:
         )
         return result.scalar() or 0
 
-    async def delete(self, data):
+    async def delete(self, data: Type[Base] | None = None):
         if data:
             await self._session.delete(data)
             await self._session.commit()
